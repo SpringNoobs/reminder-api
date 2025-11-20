@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
-    List<Reminder> findAllOrderByRemindAtAsc(Pageable pageable);
+    List<Reminder> findAllByOrderByRemindAtAsc(Pageable pageable);
 
     List<Reminder> findBySentFalseAndExecutedAtIsNullAndRemindAtAfter(Instant now);
 }
