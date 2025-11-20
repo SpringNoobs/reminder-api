@@ -1,0 +1,15 @@
+package br.com.springnoobs.reminderapi.reminder.repository;
+
+import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
+import java.time.Instant;
+import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ReminderRepository extends JpaRepository<Reminder, Long> {
+    List<Reminder> findAllByOrderByRemindAtAsc(Pageable pageable);
+
+    List<Reminder> findBySentFalseAndExecutedAtIsNullAndRemindAtAfter(Instant now);
+}
