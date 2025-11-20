@@ -63,7 +63,7 @@ public class ReminderService {
                 .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
 
         if (dto.remindAt().isBefore(Instant.now())) {
-            throw new IllegalArgumentException("RemindAt should be a date in the future!");
+            throw new PastRemindAtException("RemindAt should be a date in the future!");
         }
 
         reminderSchedulerService.updateSchedule(reminder);
