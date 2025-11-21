@@ -12,6 +12,8 @@ services:
       DB_PASSWORD: CHANGE_ME
       DB_DRIVER_CLASS_NAME: CHANGE_ME
       DB_DIALECT: CHANGE_ME
+
+      SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT: -1
     depends_on:
       mysql:
         condition: service_healthy
