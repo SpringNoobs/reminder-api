@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:8080
+@reminderId = 5
+
+### Listar Todos os Reminders
+GET {{baseUrl}}/reminders
+
+
+### Procurar Reminder por ID
+GET {{baseUrl}}/reminders/{{reminderId}}
+
+
+### Criar Novo Reminder
+POST {{baseUrl}}/reminders
+Content-Type: application/json
+
+{
+  "title": "Reminder Teste do passado",
+  "remindAt": "2019-11-10T18:40:00Z"
+}
+
+
+###  Deletar Reminder por ID
+DELETE {{baseUrl}}/reminders/{{reminderId}}
