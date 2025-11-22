@@ -26,33 +26,32 @@ public class RestReminderController {
         this.reminderService = reminderService;
     }
 
-    // OBS: acho que seria melhor retornar o id de cada reminder
-    @GetMapping
-    public ResponseEntity<List<ReminderResponseDTO>>  findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(reminderService.findAll(pageable));
-    }
+//    // Exemplo de findAll retornando uma List
+//    @GetMapping
+//    public ResponseEntity<List<ReminderResponseDTO>>  findAll(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size ) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        return ResponseEntity.ok(reminderService.findAll(pageable));
+//    }
 
-// // ABAIXO um exemplo de findAll com Page
-// // O problema é que o 666L teria que representar o total geral de elementos no banco de dados, e não tenho essa informação vinda do service
-// // Então se for para  retornar um Page, o ideal seria mudar o código no service para retornar um Page diretamente
-//@GetMapping
-//public ResponseEntity<Page<ReminderResponseDTO>> findAll(
-//        @RequestParam(defaultValue = "0") int page,
-//        @RequestParam(defaultValue = "10") int size) {
-//
-//    Pageable pageable = PageRequest.of(page, size);
-//    List<ReminderResponseDTO> reminderList = reminderService.findAll(pageable);
-//    Page<ReminderResponseDTO> reminderPage = new PageImpl<>(
-//            reminderList,
-//            pageable,
-//            666L
-//    );
-//
-//    return ResponseEntity.ok(reminderPage);
-//}
+ // ABAIXO um exemplo de findAll com Page
+ // O problema é que o terceiro argumento do construtor de PageImpl deveria representar o total geral de elementos no banco de dados e não o total de elementos listados. E não tenho essa informação vinda do service
+ // Então se for para  retornar um Page, o ideal seria mudar o código no service para retornar um Page diretamente
+@GetMapping
+public ResponseEntity<Page<ReminderResponseDTO>> findAll(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+    List<ReminderResponseDTO> reminderList = reminderService.findAll(pageable);
+    Page<ReminderResponseDTO> reminderPage = new PageImpl<>(
+            reminderList,
+            pageable,
+            reminderList.size() // Aqui o certo deveria ser o total geral de elementos no banco de dados
+    );
+    return ResponseEntity.ok(reminderPage);
+}
 
     @GetMapping("/{id}")
     public ResponseEntity<ReminderResponseDTO> findById(@PathVariable Long id) {

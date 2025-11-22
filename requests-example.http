@@ -1,9 +1,13 @@
 @baseUrl = http://localhost:8080
 @reminderId = 5
+@reminderPage = 1
+@reminderSize = 4
 
-### Listar Todos os Reminders
+### Listar os Reminders sem query params
 GET {{baseUrl}}/reminders
 
+### Listar reminders com paginacao
+GET {{baseUrl}}/reminders?page={{reminderPage}}&size={{reminderSize}}
 
 ### Procurar Reminder por ID
 GET {{baseUrl}}/reminders/{{reminderId}}
@@ -14,8 +18,8 @@ POST {{baseUrl}}/reminders
 Content-Type: application/json
 
 {
-  "title": "Reminder Teste do passado",
-  "remindAt": "2019-11-10T18:40:00Z"
+  "title": "Reminder Teste",
+  "remindAt": "2029-11-10T18:40:00Z"
 }
 
 
