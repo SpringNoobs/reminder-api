@@ -22,6 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 class ReminderServiceTest {
 
@@ -40,33 +43,35 @@ class ReminderServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyReminderListWhenRepositoryIsEmpty() {
+    void shouldReturnEmptyReminderPageWhenRepositoryIsEmpty() {
         // Arrange
-        when(repository.findAll()).thenReturn(Collections.emptyList());
+        when(repository.findAllByOrderByRemindAtAsc(any(Pageable.class)))
+                .thenReturn(Page.empty());
 
         // Act
-        List<ReminderResponseDTO> reminderList = service.findAll(any());
+        Page<ReminderResponseDTO> reminderPage = service.findAll(Pageable.unpaged());
 
         // Assert
-        assertNotNull(reminderList);
-        assertTrue(reminderList.isEmpty());
+        assertNotNull(reminderPage);
+        assertTrue(reminderPage.isEmpty());
     }
 
     @Test
-    void shouldReturnReminderListWhenRepositoryIsNotEmpty() {
+    void shouldReturnReminderPageWhenRepositoryIsNotEmpty() {
         // Arrange
         Reminder reminder = new Reminder();
         reminder.setTitle("Title");
         reminder.setRemindAt(Instant.now().plusSeconds(60));
 
-        when(repository.findAllByOrderByRemindAtAsc(any())).thenReturn(List.of(reminder));
+        when(repository.findAllByOrderByRemindAtAsc(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(reminder)));
 
         // Act
-        List<ReminderResponseDTO> list = service.findAll(any());
+        Page<ReminderResponseDTO> page = service.findAll(Pageable.unpaged());
 
         // Assert
-        assertEquals(1, list.size());
-        assertEquals("Title", list.getFirst().title());
+        assertEquals(1, page.getTotalElements());
+        assertEquals("Title", page.getContent().get(0).title());
     }
 
     @Test

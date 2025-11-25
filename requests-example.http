@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:8080
+@reminderId = 5
+@reminderPage = 1
+@reminderSize = 4
+
+### Listar os Reminders sem query params
+GET {{baseUrl}}/reminders
+
+### Listar reminders com paginacao
+GET {{baseUrl}}/reminders?page={{reminderPage}}&size={{reminderSize}}
+
+### Procurar Reminder por ID
+GET {{baseUrl}}/reminders/{{reminderId}}
+
+
+### Criar Novo Reminder
+POST {{baseUrl}}/reminders
+Content-Type: application/json
+
+{
+  "title": "Reminder Teste",
+  "remindAt": "2029-11-10T18:40:00Z"
+}
+
+
+###  Deletar Reminder por ID
+DELETE {{baseUrl}}/reminders/{{reminderId}}
