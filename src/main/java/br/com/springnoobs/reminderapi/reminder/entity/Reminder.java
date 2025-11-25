@@ -14,7 +14,11 @@ public class Reminder {
 
     private String title;
 
+    private String description;
+
     private Instant remindAt;
+
+    private Instant dueDate;
 
     private Instant executedAt;
 
@@ -22,10 +26,19 @@ public class Reminder {
 
     public Reminder() {}
 
-    public Reminder(Long id, String title, Instant remindAt, Instant executedAt, boolean sent) {
+    public Reminder(
+            Long id,
+            String title,
+            String description,
+            Instant remindAt,
+            Instant dueDate,
+            Instant executedAt,
+            boolean sent) {
         this.id = id;
         this.title = title;
+        this.description = description;
         this.remindAt = remindAt;
+        this.dueDate = dueDate;
         this.executedAt = executedAt;
         this.sent = sent;
     }
@@ -68,5 +81,21 @@ public class Reminder {
 
     public void setSent(boolean sent) {
         this.sent = sent;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Instant getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Instant dueDate) {
+        this.dueDate = dueDate;
     }
 }
