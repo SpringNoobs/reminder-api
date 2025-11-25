@@ -1,6 +1,5 @@
-package br.com.springnoobs.reminderapi.user.entity.contact;
+package br.com.springnoobs.reminderapi.user.entity;
 
-import br.com.springnoobs.reminderapi.user.entity.User;
 import jakarta.persistence.*;
 
 @Entity

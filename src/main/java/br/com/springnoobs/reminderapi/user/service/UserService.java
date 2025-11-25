@@ -2,11 +2,10 @@ package br.com.springnoobs.reminderapi.user.service;
 
 import br.com.springnoobs.reminderapi.user.dto.request.CreateUserRequestDTO;
 import br.com.springnoobs.reminderapi.user.dto.response.UserResponseDTO;
+import br.com.springnoobs.reminderapi.user.entity.Contact;
 import br.com.springnoobs.reminderapi.user.entity.User;
-import br.com.springnoobs.reminderapi.user.entity.contact.Contact;
 import br.com.springnoobs.reminderapi.user.exception.EmailAlreadyExistsException;
 import br.com.springnoobs.reminderapi.user.exception.EmailNotFoundException;
-import br.com.springnoobs.reminderapi.user.exception.IllegalArgumentException;
 import br.com.springnoobs.reminderapi.user.exception.UserNotFoundException;
 import br.com.springnoobs.reminderapi.user.mapper.UserMapper;
 import br.com.springnoobs.reminderapi.user.repository.ContactRepository;
@@ -27,14 +26,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO saveUser(CreateUserRequestDTO dto) {
-        var contactDTO = dto.contactRequestDTO();
-        if (dto.firstName() == null || dto.lastName() == null) {
-            throw new IllegalArgumentException("Name cannot be null");
-        }
-        if (contactDTO == null || contactDTO.email() == null || contactDTO.phoneNumber() == null) {
-            throw new IllegalArgumentException("Contact cannot be null");
-        }
+    public UserResponseDTO create(CreateUserRequestDTO dto) {
         if (contactRepository.existsByEmail(dto.contactRequestDTO().email())) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
@@ -54,7 +46,6 @@ public class UserService {
         return UserMapper.toResponse(savedUser);
     }
 
-    @Transactional
     public UserResponseDTO findByEmail(String email) {
         Contact contact = contactRepository
                 .findByEmail(email)
@@ -63,18 +54,13 @@ public class UserService {
         return UserMapper.toResponse(user);
     }
 
-    @Transactional
-    public List<UserResponseDTO> listAllUsers() {
+    public List<UserResponseDTO> findAll() {
         List<User> users = userRepository.findAll();
         return UserMapper.toResponseList(users);
     }
 
-    @Transactional
-    public void deleteUserById(Long id) {
+    public void delete(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found" + id));
-        if (user.getContact() != null) {
-            contactRepository.delete(user.getContact());
-        }
         userRepository.delete(user);
     }
 }
