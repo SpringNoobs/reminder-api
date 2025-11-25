@@ -1,7 +1,6 @@
 package br.com.springnoobs.reminderapi.mail.engine;
 
-import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
-import br.com.springnoobs.reminderapi.user.entity.contact.Contact;
+import br.com.springnoobs.reminderapi.user.entity.Contact;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.IOException;

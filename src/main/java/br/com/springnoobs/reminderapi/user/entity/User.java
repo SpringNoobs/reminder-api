@@ -1,11 +1,6 @@
 package br.com.springnoobs.reminderapi.user.entity;
 
-import br.com.springnoobs.reminderapi.user.entity.contact.Contact;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class User {
@@ -18,7 +13,7 @@ public class User {
 
     private String lastName;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Contact contact;
 
     public User() {}
