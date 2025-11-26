@@ -74,7 +74,7 @@ class ReminderServiceTest {
     @Test
     void shouldThrowNotFoundExceptionWhenTryFindReminderByIdWithInvalidId() {
         // Arrange
-        when(repository.findById(any())).thenThrow(NotFoundException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
         // Act And Assert
         assertThrows(NotFoundException.class, () -> service.findById(1L));
@@ -159,7 +159,7 @@ class ReminderServiceTest {
         // Arrange
         Instant remindAt = Instant.now().plusSeconds(60);
 
-        when(repository.findById(any())).thenThrow(NotFoundException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
         UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", remindAt);
 
@@ -203,7 +203,7 @@ class ReminderServiceTest {
     @Test
     void shouldThrowNotFoundExceptionWhenTryDeleteReminderWithInvalidId() {
         // Arrange
-        when(repository.findById(any())).thenThrow(NotFoundException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
         // Act And Assert
         assertThrows(NotFoundException.class, () -> service.delete(1L));
