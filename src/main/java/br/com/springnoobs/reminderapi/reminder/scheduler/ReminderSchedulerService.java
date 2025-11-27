@@ -1,5 +1,6 @@
 package br.com.springnoobs.reminderapi.reminder.scheduler;
 
+import br.com.springnoobs.reminderapi.mail.service.EmailService;
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
@@ -15,22 +16,25 @@ public class ReminderSchedulerService {
 
     private final ReminderRepository repository;
     private final TaskScheduler taskScheduler;
+    private final EmailService emailService;
     private final Map<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    public ReminderSchedulerService(ReminderRepository repository, TaskScheduler taskScheduler) {
+    public ReminderSchedulerService(ReminderRepository repository, TaskScheduler taskScheduler, EmailService emailService) {
         this.repository = repository;
         this.taskScheduler = taskScheduler;
+        this.emailService = emailService;
     }
 
     public void createSchedule(Reminder reminder) {
         ScheduledFuture<?> future = taskScheduler.schedule(
                 () -> {
+                    emailService.send(reminder);
                     reminder.setExecutedAt(Instant.now());
                     reminder.setSent(true);
                     repository.save(reminder);
                     deleteReminderSchedule(reminder.getId());
                 },
-                reminder.getRemindAt());
+                reminder.getDueDate());
 
         scheduledTasks.put(reminder.getId(), future);
     }

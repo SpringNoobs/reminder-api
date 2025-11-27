@@ -1,7 +1,5 @@
 package br.com.springnoobs.reminderapi.mail.engine;
 
-import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
-import br.com.springnoobs.reminderapi.user.entity.Contact;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -12,9 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -24,24 +19,19 @@ public class MailEngine {
 
     private final JavaMailSender mailSender;
 
-    private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.of("America/Sao_Paulo"));
-
     public MailEngine(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public void sendEmail(Contact contact, Reminder reminder) {
+    public void sendEmail(Map<String, String> variables) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(contact.getEmail());
-            helper.setSubject("Lembrete" + " - " + reminder.getTitle());
+            helper.setTo(variables.get("email"));
+            helper.setSubject(variables.get("subject"));
 
             String mailTemplate = getEmailTemplateContent();
-
-            Map<String, String> variables = buildEmailVariables(contact, reminder, "#");
 
             mailTemplate = replaceVariables(mailTemplate, variables);
 
@@ -57,8 +47,11 @@ public class MailEngine {
         String result = template;
 
         for (Map.Entry<String, String> entry : variables.entrySet()) {
-            String placeholder = "{{" + entry.getKey() + "}}";
-            result = result.replace(placeholder, entry.getValue());
+            String emailVariable = "{{" + entry.getKey() + "}}";
+
+            if (result.contains(emailVariable)) {
+                result = result.replace(emailVariable, entry.getValue());
+            }
         }
 
         return result;
@@ -68,16 +61,5 @@ public class MailEngine {
         ClassPathResource resource = new ClassPathResource("templates/email/email-template.html");
 
         return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-    }
-
-    private Map<String, String> buildEmailVariables(Contact contact, Reminder reminder, String disableUrl) {
-        Map<String, String> map = new HashMap<>();
-
-        map.put("name", contact.getUser().getFirstName());
-        map.put("title", reminder.getTitle());
-        map.put("remind_at", DATE_FORMATTER.format(reminder.getRemindAt()));
-        map.put("disable_notification_url", disableUrl);
-
-        return map;
     }
 }
