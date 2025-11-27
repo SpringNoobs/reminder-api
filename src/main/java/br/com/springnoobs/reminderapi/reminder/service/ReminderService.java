@@ -10,7 +10,6 @@ import br.com.springnoobs.reminderapi.reminder.mapper.ReminderMapper;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
 import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
 import java.time.Instant;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,8 +49,7 @@ public class ReminderService {
     }
 
     public Page<ReminderResponseDTO> findAll(Pageable pageable) {
-        return repository.findAllByOrderByRemindAtAsc(pageable)
-                .map(ReminderMapper::toResponse);
+        return repository.findAllByOrderByRemindAtAsc(pageable).map(ReminderMapper::toResponse);
     }
 
     public ReminderResponseDTO update(Long id, UpdateReminderRequestDTO dto) {
