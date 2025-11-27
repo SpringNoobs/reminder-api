@@ -13,6 +13,11 @@ import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastRemindAtException;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
 import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
+import br.com.springnoobs.reminderapi.user.dto.request.ContactRequestDTO;
+import br.com.springnoobs.reminderapi.user.dto.request.CreateUserRequestDTO;
+import br.com.springnoobs.reminderapi.user.entity.Contact;
+import br.com.springnoobs.reminderapi.user.entity.User;
+import br.com.springnoobs.reminderapi.user.service.UserService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +37,9 @@ class ReminderServiceTest {
 
     @Mock
     private ReminderSchedulerService reminderSchedulerService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private ReminderService service;
@@ -97,38 +105,58 @@ class ReminderServiceTest {
         assertEquals("Title", reminderDTO.title());
     }
 
-//    @Test
-//    void shouldCreateReminderWhenRequestIsValid() {
-//        // Arrange
-//        Instant remindAt = Instant.now().plusSeconds(60);
-//
-//        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
-//
-//        Reminder reminder = new Reminder();
-//        reminder.setTitle(request.title());
-//        reminder.setRemindAt(request.remindAt());
-//
-//        when(repository.save(any())).thenReturn(reminder);
-//
-//        // Act
-//        ReminderResponseDTO response = service.create(request);
-//
-//        // Assert
-//        assertEquals("Create", response.title());
-//        assertEquals(remindAt, response.remindAt());
-//        verify(repository).save(any());
-//    }
+   @Test
+   void shouldCreateReminderWhenRequestIsValid() {
+       // Arrange
+       Instant dueDate = Instant.now().plusSeconds(60);
 
-//    @Test
-//    void shouldThrowPastRemindAtExceptionWhenTryCreateReminderWithPastRemindAt() {
-//        // Arrange
-//        Instant remindAt = Instant.now().minusSeconds(60);
-//
-//        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
-//
-//        // Act And Assert
-//        assertThrows(PastRemindAtException.class, () -> service.create(request));
-//    }
+       CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO("First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
+
+       CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate, createUserRequestDTO);
+
+       Reminder reminder = new Reminder();
+       reminder.setTitle(request.title());
+       reminder.setDueDate(request.dueDate());
+
+       User user = new User();
+
+       user.setFirstName(createUserRequestDTO.firstName());
+       user.setLastName(createUserRequestDTO.lastName());
+
+       Contact contact = new Contact();
+       contact.setEmail(createUserRequestDTO.contactRequestDTO().email());
+       contact.setPhoneNumber(createUserRequestDTO.contactRequestDTO().phoneNumber());
+
+       user.setContact(contact);
+
+       reminder.setUser(user);
+
+       when(repository.save(any())).thenReturn(reminder);
+       when(userService.createAndSaveUser(createUserRequestDTO)).thenReturn(user);
+
+       // Act
+       ReminderResponseDTO response = service.create(request);
+
+       // Assert
+       assertEquals("Create", response.title());
+       assertEquals(dueDate, reminder.getDueDate());
+       assertNotNull(reminder.getUser());
+       assertEquals(reminder.getUser().getFirstName(), user.getFirstName());
+       verify(repository).save(any());
+   }
+
+   @Test
+   void shouldThrowPastRemindAtExceptionWhenTryCreateReminderWithPastRemindAt() {
+       // Arrange
+       Instant dueDate = Instant.now().minusSeconds(60);
+
+       CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO("First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
+
+       CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate, createUserRequestDTO);
+
+       // Act And Assert
+       assertThrows(PastRemindAtException.class, () -> service.create(request));
+   }
 
     @Test
     void shouldUpdateReminderWhenRequestIsValid() {
