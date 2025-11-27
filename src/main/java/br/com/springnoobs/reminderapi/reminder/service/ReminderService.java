@@ -11,29 +11,39 @@ import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
 import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
 import java.time.Instant;
 
+import br.com.springnoobs.reminderapi.user.entity.User;
+import br.com.springnoobs.reminderapi.user.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReminderService {
 
     private final ReminderRepository repository;
+    private final UserService userService;
     private final ReminderSchedulerService reminderSchedulerService;
 
-    public ReminderService(ReminderRepository repository, ReminderSchedulerService reminderSchedulerService) {
+    public ReminderService(ReminderRepository repository, UserService userService, ReminderSchedulerService reminderSchedulerService) {
         this.repository = repository;
+        this.userService = userService;
         this.reminderSchedulerService = reminderSchedulerService;
     }
 
+    @Transactional
     public ReminderResponseDTO create(CreateReminderRequestDTO dto) {
-        if (dto.remindAt().isBefore(Instant.now())) {
-            throw new PastRemindAtException("RemindAt should be a date in the future!");
+        if (dto.dueDate().isBefore(Instant.now())) {
+            throw new PastRemindAtException("DueDate should be a date in the future!");
         }
 
         Reminder reminder = new Reminder();
         BeanUtils.copyProperties(dto, reminder);
+
+        User user = userService.createAndSaveUser(dto.user());
+
+        reminder.setUser(user);
 
         Reminder savedReminder = repository.save(reminder);
         reminderSchedulerService.createSchedule(savedReminder);

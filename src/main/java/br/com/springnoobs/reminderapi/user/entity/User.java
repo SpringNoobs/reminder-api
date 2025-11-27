@@ -1,6 +1,10 @@
 package br.com.springnoobs.reminderapi.user.entity;
 
+import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class User {
@@ -16,13 +20,17 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Contact contact;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reminder> reminders = new ArrayList<>();
+
     public User() {}
 
-    public User(Long id, String firstName, String lastName, Contact contact) {
+    public User(Long id, String firstName, String lastName, Contact contact, List<Reminder> reminders) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.contact = contact;
+        this.reminders = reminders;
     }
 
     public Long getId() {
@@ -55,5 +63,13 @@ public class User {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public List<Reminder> getReminders() {
+        return reminders;
+    }
+
+    public void setReminders(List<Reminder> reminders) {
+        this.reminders = reminders;
     }
 }

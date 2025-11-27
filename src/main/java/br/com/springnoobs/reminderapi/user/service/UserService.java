@@ -27,23 +27,9 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO create(CreateUserRequestDTO dto) {
-        if (contactRepository.existsByEmail(dto.contactRequestDTO().email())) {
-            throw new EmailAlreadyExistsException("Email already exists");
-        }
-        User user = new User();
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
+        User user = createAndSaveUser(dto);
 
-        User savedUser = userRepository.save(user);
-
-        Contact contact = new Contact();
-        contact.setEmail(dto.contactRequestDTO().email());
-        contact.setPhoneNumber(dto.contactRequestDTO().phoneNumber());
-        contact.setUser(savedUser);
-
-        contactRepository.save(contact);
-        savedUser.setContact(contact);
-        return UserMapper.toResponse(savedUser);
+        return UserMapper.toResponse(user);
     }
 
     public UserResponseDTO findByEmail(String email) {
@@ -62,5 +48,27 @@ public class UserService {
     public void delete(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found" + id));
         userRepository.delete(user);
+    }
+
+    public User createAndSaveUser(CreateUserRequestDTO request) {
+        if (contactRepository.existsByEmail(request.contactRequestDTO().email())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        User user = new User();
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+
+        User savedUser = userRepository.save(user);
+
+        Contact contact = new Contact();
+        contact.setEmail(request.contactRequestDTO().email());
+        contact.setPhoneNumber(request.contactRequestDTO().phoneNumber());
+        contact.setUser(savedUser);
+
+        contactRepository.save(contact);
+        savedUser.setContact(contact);
+
+        return savedUser;
     }
 }

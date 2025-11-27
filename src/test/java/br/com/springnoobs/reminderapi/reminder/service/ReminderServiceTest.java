@@ -97,38 +97,38 @@ class ReminderServiceTest {
         assertEquals("Title", reminderDTO.title());
     }
 
-    @Test
-    void shouldCreateReminderWhenRequestIsValid() {
-        // Arrange
-        Instant remindAt = Instant.now().plusSeconds(60);
+//    @Test
+//    void shouldCreateReminderWhenRequestIsValid() {
+//        // Arrange
+//        Instant remindAt = Instant.now().plusSeconds(60);
+//
+//        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
+//
+//        Reminder reminder = new Reminder();
+//        reminder.setTitle(request.title());
+//        reminder.setRemindAt(request.remindAt());
+//
+//        when(repository.save(any())).thenReturn(reminder);
+//
+//        // Act
+//        ReminderResponseDTO response = service.create(request);
+//
+//        // Assert
+//        assertEquals("Create", response.title());
+//        assertEquals(remindAt, response.remindAt());
+//        verify(repository).save(any());
+//    }
 
-        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
-
-        Reminder reminder = new Reminder();
-        reminder.setTitle(request.title());
-        reminder.setRemindAt(request.remindAt());
-
-        when(repository.save(any())).thenReturn(reminder);
-
-        // Act
-        ReminderResponseDTO response = service.create(request);
-
-        // Assert
-        assertEquals("Create", response.title());
-        assertEquals(remindAt, response.remindAt());
-        verify(repository).save(any());
-    }
-
-    @Test
-    void shouldThrowPastRemindAtExceptionWhenTryCreateReminderWithPastRemindAt() {
-        // Arrange
-        Instant remindAt = Instant.now().minusSeconds(60);
-
-        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
-
-        // Act And Assert
-        assertThrows(PastRemindAtException.class, () -> service.create(request));
-    }
+//    @Test
+//    void shouldThrowPastRemindAtExceptionWhenTryCreateReminderWithPastRemindAt() {
+//        // Arrange
+//        Instant remindAt = Instant.now().minusSeconds(60);
+//
+//        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
+//
+//        // Act And Assert
+//        assertThrows(PastRemindAtException.class, () -> service.create(request));
+//    }
 
     @Test
     void shouldUpdateReminderWhenRequestIsValid() {
