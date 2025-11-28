@@ -90,7 +90,7 @@ class ReminderControllerTest {
     @Test
     void shouldCreateReminderWhenRequestIsValid() throws Exception {
         var request = new CreateReminderRequestDTO("New Reminder", Instant.now().plusSeconds(60));
-        var response = new ReminderResponseDTO("New Reminder", request.remindAt());
+        var response = new ReminderResponseDTO("New Reminder", request.dueDate());
 
         when(service.create(any(CreateReminderRequestDTO.class))).thenReturn(response);
 
@@ -120,7 +120,7 @@ class ReminderControllerTest {
         long reminderId = 1L;
         var request =
                 new UpdateReminderRequestDTO("Updated Reminder", Instant.now().plusSeconds(60));
-        var response = new ReminderResponseDTO("Updated Reminder", request.remindAt());
+        var response = new ReminderResponseDTO("Updated Reminder", request.dueDate());
 
         when(service.update(any(Long.class), any(UpdateReminderRequestDTO.class)))
                 .thenReturn(response);
