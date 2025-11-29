@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import java.time.Instant;
 
 @Entity
+@Table(name = "reminders")
 public class Reminder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

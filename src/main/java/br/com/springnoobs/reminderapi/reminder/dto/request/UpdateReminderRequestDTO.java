@@ -6,4 +6,4 @@ import java.time.Instant;
 
 public record UpdateReminderRequestDTO(
         @NotBlank(message = "Title must not be null") String title,
-        @NotNull(message = "RemindAt must not be null") Instant remindAt) {}
+        @NotNull(message = "DueDate must not be null") Instant dueDate) {}
