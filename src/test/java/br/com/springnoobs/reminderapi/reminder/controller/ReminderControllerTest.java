@@ -14,7 +14,7 @@ import br.com.springnoobs.reminderapi.reminder.dto.request.CreateReminderRequest
 import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequestDTO;
 import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
-import br.com.springnoobs.reminderapi.reminder.exception.PastRemindAtException;
+import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
 import br.com.springnoobs.reminderapi.reminder.service.ReminderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
@@ -90,9 +90,9 @@ class ReminderControllerTest {
     @Test
     void shouldCreateReminderWhenRequestIsValid() throws Exception {
         var request = new CreateReminderRequestDTO("New Reminder", Instant.now().plusSeconds(60));
-        var response = new ReminderResponseDTO("New Reminder", request.remindAt());
+        var response = new ReminderResponseDTO(request.title(), request.dueDate());
 
-        when(service.create(any(CreateReminderRequestDTO.class))).thenReturn(response);
+        when(service.create(request)).thenReturn(response);
 
         mockMvc.perform(post("/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,8 +106,7 @@ class ReminderControllerTest {
         var request =
                 new CreateReminderRequestDTO("Past Reminder", Instant.now().minusSeconds(60));
 
-        when(service.create(any(CreateReminderRequestDTO.class)))
-                .thenThrow(new PastRemindAtException("Remind at date must be in the future"));
+        when(service.create(request)).thenThrow(new PastDueDateException("Remind at date must be in the future"));
 
         mockMvc.perform(post("/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,10 +119,9 @@ class ReminderControllerTest {
         long reminderId = 1L;
         var request =
                 new UpdateReminderRequestDTO("Updated Reminder", Instant.now().plusSeconds(60));
-        var response = new ReminderResponseDTO("Updated Reminder", request.remindAt());
+        var response = new ReminderResponseDTO(request.title(), request.dueDate());
 
-        when(service.update(any(Long.class), any(UpdateReminderRequestDTO.class)))
-                .thenReturn(response);
+        when(service.update(reminderId, request)).thenReturn(response);
 
         mockMvc.perform(put("/reminders/{id}", reminderId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -138,8 +136,8 @@ class ReminderControllerTest {
         var request =
                 new UpdateReminderRequestDTO("Past Reminder", Instant.now().minusSeconds(60));
 
-        when(service.update(any(Long.class), any(UpdateReminderRequestDTO.class)))
-                .thenThrow(new PastRemindAtException("Remind at date must be in the future"));
+        when(service.update(reminderId, request))
+                .thenThrow(new PastDueDateException("Remind at date must be in the future"));
 
         mockMvc.perform(put("/reminders/{id}", reminderId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -153,8 +151,7 @@ class ReminderControllerTest {
         var request =
                 new UpdateReminderRequestDTO("Updated Reminder", Instant.now().plusSeconds(60));
 
-        when(service.update(any(Long.class), any(UpdateReminderRequestDTO.class)))
-                .thenThrow(new NotFoundException("Reminder not found"));
+        when(service.update(reminderId, request)).thenThrow(new NotFoundException("Reminder not found"));
 
         mockMvc.perform(put("/reminders/{id}", reminderId)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -1,7 +1,7 @@
 package br.com.springnoobs.reminderapi.reminder.controller;
 
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
-import br.com.springnoobs.reminderapi.reminder.exception.PastRemindAtException;
+import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,9 +22,9 @@ public class ReminderExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(PastRemindAtException.class)
-    public ProblemDetail handlePastRemindAtException(ServletWebRequest request, PastRemindAtException ex) {
-        logger.warn("Past remindAt {}", request.getRequest().getRequestURI(), ex);
+    @ExceptionHandler(PastDueDateException.class)
+    public ProblemDetail handlePastDueDateException(ServletWebRequest request, PastDueDateException ex) {
+        logger.warn("Past due date {}", request.getRequest().getRequestURI(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 }

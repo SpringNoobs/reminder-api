@@ -10,7 +10,7 @@ import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequest
 import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
-import br.com.springnoobs.reminderapi.reminder.exception.PastRemindAtException;
+import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
 import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
 import java.time.Instant;
@@ -100,14 +100,12 @@ class ReminderServiceTest {
     @Test
     void shouldCreateReminderWhenRequestIsValid() {
         // Arrange
-        Instant remindAt = Instant.now().plusSeconds(60);
-
-        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
+        Instant dueDate = Instant.now().plusSeconds(60);
+        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate);
 
         Reminder reminder = new Reminder();
         reminder.setTitle(request.title());
-        reminder.setRemindAt(request.remindAt());
-
+        reminder.setDueDate(request.dueDate());
         when(repository.save(any())).thenReturn(reminder);
 
         // Act
@@ -115,31 +113,28 @@ class ReminderServiceTest {
 
         // Assert
         assertEquals("Create", response.title());
-        assertEquals(remindAt, response.remindAt());
+        assertEquals(dueDate, response.dueDate());
         verify(repository).save(any());
     }
 
     @Test
-    void shouldThrowPastRemindAtExceptionWhenTryCreateReminderWithPastRemindAt() {
+    void shouldThrowDueDateExceptionWhenTryCreateReminderWithPastDueDate() {
         // Arrange
-        Instant remindAt = Instant.now().minusSeconds(60);
-
-        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", remindAt);
+        Instant dueDate = Instant.now().minusSeconds(60);
+        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate);
 
         // Act And Assert
-        assertThrows(PastRemindAtException.class, () -> service.create(request));
+        assertThrows(PastDueDateException.class, () -> service.create(request));
     }
 
     @Test
     void shouldUpdateReminderWhenRequestIsValid() {
         // Arrange
-        Instant remindAt = Instant.now().plusSeconds(60);
-
-        UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", remindAt);
+        Instant dueDate = Instant.now().plusSeconds(60);
+        UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", dueDate);
 
         Reminder reminder = new Reminder();
-        reminder.setTitle(request.title());
-        reminder.setRemindAt(request.remindAt());
+        reminder.setTitle("Old Title");
 
         when(repository.findById(1L)).thenReturn(Optional.of(reminder));
         when(repository.save(any())).thenReturn(reminder);
@@ -149,7 +144,7 @@ class ReminderServiceTest {
 
         // Assert
         assertEquals("Update", response.title());
-        assertEquals(remindAt, response.remindAt());
+        assertEquals(dueDate, response.dueDate());
         verify(repository).findById(1L);
         verify(repository).save(any());
     }
@@ -157,31 +152,29 @@ class ReminderServiceTest {
     @Test
     void shouldThrowNotFoundExceptionWhenTryUpdateReminderWithInvalidId() {
         // Arrange
-        Instant remindAt = Instant.now().plusSeconds(60);
+        Instant dueDate = Instant.now().plusSeconds(60);
+        UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", dueDate);
 
         when(repository.findById(1L)).thenReturn(Optional.empty());
-
-        UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", remindAt);
 
         // Act And Assert
         assertThrows(NotFoundException.class, () -> service.update(1L, request));
     }
 
     @Test
-    void shouldThrowPastRemindAtExceptionWhenTryUpdateReminderWithPastRemindAt() {
+    void shouldThrowPastDueDateExceptionWhenTryUpdateReminderWithPastDueDate() {
         // Arrange
         Instant remindAt = Instant.now().minusSeconds(60);
-
         UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", remindAt);
 
         Reminder reminder = new Reminder();
-        reminder.setTitle(request.title());
-        reminder.setRemindAt(request.remindAt());
+        reminder.setTitle("Any Title");
+        reminder.setDueDate(request.dueDate());
 
         when(repository.findById(1L)).thenReturn(Optional.of(reminder));
 
         // Act And Assert
-        assertThrows(PastRemindAtException.class, () -> service.update(1L, request));
+        assertThrows(PastDueDateException.class, () -> service.update(1L, request));
         verify(repository).findById(1L);
     }
 
