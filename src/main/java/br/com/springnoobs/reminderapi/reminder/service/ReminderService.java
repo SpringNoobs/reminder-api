@@ -90,4 +90,11 @@ public class ReminderService {
 
         repository.deleteById(id);
     }
+
+    public void registerReminderExecution(Reminder reminder) {
+        reminder.setExecutedAt(Instant.now());
+        reminder.setSent(true);
+
+        repository.save(reminder);
+    }
 }
