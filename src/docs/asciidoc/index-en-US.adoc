@@ -1,0 +1,124 @@
+= Reminder API Documentation
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+== Overview
+
+[[overview_http_verbs]]
+=== HTTP verbs
+
+The API tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PUT`
+| Used to update an existing resource
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview_http_status_codes]]
+=== HTTP status codes
+
+The API tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully
+
+| `204 No Content`
+| The request has succeeded with no content to return
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+[[resources]]
+== Resources
+
+[[resources_reminders]]
+=== Reminders
+
+The Reminders resource is used to create, list, retrieve, update, and delete reminders.
+
+[[resources_reminders_list]]
+==== List reminders
+
+A `GET` request will list all the reminders.
+
+operation::list-all-reminders[snippets='http-request,curl-request,http-response']
+
+==== List reminders (empty)
+
+operation::list-all-reminders-empty[snippets='http-response']
+
+[[resources_reminders_create]]
+==== Create a reminder
+
+A `POST` request will create a new reminder.
+
+operation::create-reminder[snippets='http-request,curl-request,http-response,request-body']
+
+==== Create a reminder (past date)
+
+operation::create-reminder-past-date[snippets='http-response']
+
+[[resources_reminders_retrieve]]
+==== Retrieve a reminder
+
+A `GET` request will retrieve the details of a reminder.
+
+operation::find-reminder-by-id[snippets='http-request,curl-request,http-response']
+
+==== Retrieve a reminder (not found)
+
+operation::find-reminder-by-id-not-found[snippets='http-response']
+
+[[resources_reminders_update]]
+==== Update a reminder
+
+A `PUT` request will update an existing reminder.
+
+operation::update-reminder[snippets='http-request,curl-request,http-response,request-body']
+
+==== Update a reminder (not found)
+
+operation::update-reminder-not-found[snippets='http-response']
+
+==== Update a reminder (past date)
+
+operation::update-reminder-past-date[snippets='http-response']
+
+[[resources_reminders_delete]]
+==== Delete a reminder
+
+A `DELETE` request will delete a reminder.
+
+operation::delete-reminder[snippets='http-request,curl-request,http-response']
+
+==== Delete a reminder (not found)
+
+operation::delete-reminder-not-found[snippets='http-response']

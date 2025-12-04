@@ -3,10 +3,8 @@ package br.com.springnoobs.reminderapi.reminder.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ReminderController.class)
+@AutoConfigureRestDocs
 @ActiveProfiles("test")
 class ReminderControllerTest {
 
@@ -57,7 +57,8 @@ class ReminderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value("Lembrete A"))
                 .andExpect(jsonPath("$.content[1].title").value("Lembrete B"))
-                .andExpect(jsonPath("$.page.totalElements").value(2));
+                .andExpect(jsonPath("$.page.totalElements").value(2))
+                .andDo(document("list-all-reminders"));
     }
 
     @Test
@@ -66,7 +67,8 @@ class ReminderControllerTest {
 
         mockMvc.perform(get("/reminders?page=0&size=10").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isEmpty());
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andDo(document("list-all-reminders-empty"));
     }
 
     @Test
@@ -77,7 +79,8 @@ class ReminderControllerTest {
 
         mockMvc.perform(get("/reminders/{id}", reminderId).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test Reminder"));
+                .andExpect(jsonPath("$.title").value("Test Reminder"))
+                .andDo(document("find-reminder-by-id"));
     }
 
     @Test
@@ -86,7 +89,8 @@ class ReminderControllerTest {
         when(service.findById(reminderId)).thenThrow(new NotFoundException("Reminder not found"));
 
         mockMvc.perform(get("/reminders/{id}", reminderId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andDo(document("find-reminder-by-id-not-found"));
     }
 
     @Test
@@ -103,7 +107,8 @@ class ReminderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("New Reminder"));
+                .andExpect(jsonPath("$.title").value("New Reminder"))
+                .andDo(document("create-reminder"));
     }
 
     @Test
@@ -119,7 +124,8 @@ class ReminderControllerTest {
         mockMvc.perform(post("/reminders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andDo(document("create-reminder-past-date"));
     }
 
     @Test
@@ -135,7 +141,8 @@ class ReminderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Updated Reminder"));
+                .andExpect(jsonPath("$.title").value("Updated Reminder"))
+                .andDo(document("update-reminder"));
     }
 
     @Test
@@ -150,7 +157,8 @@ class ReminderControllerTest {
         mockMvc.perform(put("/reminders/{id}", reminderId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andDo(document("update-reminder-past-date"));
     }
 
     @Test
@@ -164,14 +172,17 @@ class ReminderControllerTest {
         mockMvc.perform(put("/reminders/{id}", reminderId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andDo(document("update-reminder-not-found"));
     }
 
     @Test
     void shouldDeleteReminderWhenIdIsValid() throws Exception {
         long reminderId = 1L;
 
-        mockMvc.perform(delete("/reminders/{id}", reminderId)).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/reminders/{id}", reminderId))
+                .andExpect(status().isNoContent())
+                .andDo(document("delete-reminder"));
     }
 
     @Test
@@ -179,6 +190,8 @@ class ReminderControllerTest {
         long reminderId = 99L;
         doThrow(new NotFoundException("Reminder not found")).when(service).delete(reminderId);
 
-        mockMvc.perform(delete("/reminders/{id}", reminderId)).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/reminders/{id}", reminderId))
+                .andExpect(status().isNotFound())
+                .andDo(document("delete-reminder-not-found"));
     }
 }

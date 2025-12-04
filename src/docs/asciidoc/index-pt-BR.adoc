@@ -1,0 +1,124 @@
+= Documentação da API Reminder
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Exemplo de requisição
+:operation-http-response-title: Exemplo de resposta
+
+[[overview]]
+== Visão geral
+
+[[overview_http_verbs]]
+=== Verbos HTTP
+
+A API tenta aderir o máximo possível aos padrões HTTP e REST convencionais no uso de verbos HTTP.
+
+|===
+| Verbo | Uso
+
+| `GET`
+| Utilizado para buscar um recurso
+
+| `POST`
+| Utilizado para criar um novo recurso
+
+| `PUT`
+| Utilizado para atualizar um recurso existente
+
+| `DELETE`
+| Utilizado para deletar um recurso existente
+|===
+
+[[overview_http_status_codes]]
+=== Códigos de status HTTP
+
+A API tenta aderir o máximo possível aos padrões HTTP e REST convencionais no uso de códigos de status HTTP.
+
+|===
+| Código de status | Uso
+
+| `200 OK`
+| A requisição foi concluída com sucesso
+
+| `201 Created`
+| Um novo recurso foi criado com sucesso
+
+| `204 No Content`
+| A requisição foi bem-sucedida, mas sem conteúdo para retornar
+
+| `400 Bad Request`
+| O servidor não pode processar a requisição devido a um erro do cliente (por exemplo, sintaxe mal formada ou validação falha)
+
+| `404 Not Found`
+| O recurso solicitado não existe
+|===
+
+[[resources]]
+== Recursos
+
+[[resources_reminders]]
+=== Lembretes
+
+O recurso Lembretes é utilizado para criar, listar, buscar, atualizar e deletar lembretes.
+
+[[resources_reminders_list]]
+==== Listar lembretes
+
+Uma requisição `GET` listará todos os lembretes.
+
+operation::list-all-reminders[snippets='http-request,curl-request,http-response']
+
+==== Listar lembretes (vazio)
+
+operation::list-all-reminders-empty[snippets='http-response']
+
+[[resources_reminders_create]]
+==== Criar um lembrete
+
+Uma requisição `POST` criará um novo lembrete.
+
+operation::create-reminder[snippets='http-request,curl-request,http-response,request-body']
+
+==== Criar um lembrete (data no passado)
+
+operation::create-reminder-past-date[snippets='http-response']
+
+[[resources_reminders_retrieve]]
+==== Buscar um lembrete
+
+Uma requisição `GET` buscará os detalhes de um lembrete.
+
+operation::find-reminder-by-id[snippets='http-request,curl-request,http-response']
+
+==== Buscar um lembrete (não encontrado)
+
+operation::find-reminder-by-id-not-found[snippets='http-response']
+
+[[resources_reminders_update]]
+==== Atualizar um lembrete
+
+Uma requisição `PUT` atualizará um lembrete existente.
+
+operation::update-reminder[snippets='http-request,curl-request,http-response,request-body']
+
+==== Atualizar um lembrete (não encontrado)
+
+operation::update-reminder-not-found[snippets='http-response']
+
+==== Atualizar um lembrete (data no passado)
+
+operation::update-reminder-past-date[snippets='http-response']
+
+[[resources_reminders_delete]]
+==== Deletar um lembrete
+
+Uma requisição `DELETE` deletará um lembrete.
+
+operation::delete-reminder[snippets='http-request,curl-request,http-response']
+
+==== Deletar um lembrete (não encontrado)
+
+operation::delete-reminder-not-found[snippets='http-response']
