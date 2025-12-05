@@ -6,13 +6,14 @@ import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
+import br.com.springnoobs.reminderapi.reminder.exception.ReminderSchedulerException;
 import br.com.springnoobs.reminderapi.reminder.mapper.ReminderMapper;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
-import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
-import java.time.Instant;
-
+import br.com.springnoobs.reminderapi.schedule.service.JobService;
 import br.com.springnoobs.reminderapi.user.entity.User;
 import br.com.springnoobs.reminderapi.user.service.UserService;
+import java.time.Instant;
+import org.quartz.SchedulerException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,31 +25,38 @@ public class ReminderService {
 
     private final ReminderRepository repository;
     private final UserService userService;
-    private final ReminderSchedulerService reminderSchedulerService;
+    private final JobService jobService;
 
-    public ReminderService(ReminderRepository repository, UserService userService, ReminderSchedulerService reminderSchedulerService) {
+    public ReminderService(ReminderRepository repository, UserService userService, JobService jobService) {
         this.repository = repository;
         this.userService = userService;
-        this.reminderSchedulerService = reminderSchedulerService;
+        this.jobService = jobService;
     }
 
     @Transactional
     public ReminderResponseDTO create(CreateReminderRequestDTO dto) {
-        if (dto.dueDate().isBefore(Instant.now())) {
-            throw new PastDueDateException("DueDate should be a date in the future!");
+        try {
+            if (dto.dueDate().isBefore(Instant.now())) {
+                throw new PastDueDateException("DueDate should be a date in the future!");
+            }
+
+            Reminder reminder = new Reminder();
+            BeanUtils.copyProperties(dto, reminder);
+
+            User user = userService.createAndSaveUser(dto.user());
+
+            reminder.setUser(user);
+
+            Reminder savedReminder = repository.save(reminder);
+            jobService.scheduleJob(savedReminder);
+
+            return ReminderMapper.toResponse(savedReminder);
+
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SchedulerException e) {
+            throw new ReminderSchedulerException(e.getMessage());
         }
-
-        Reminder reminder = new Reminder();
-        BeanUtils.copyProperties(dto, reminder);
-
-        User user = userService.createAndSaveUser(dto.user());
-
-        reminder.setUser(user);
-
-        Reminder savedReminder = repository.save(reminder);
-        reminderSchedulerService.createSchedule(savedReminder);
-
-        return ReminderMapper.toResponse(savedReminder);
     }
 
     public ReminderResponseDTO findById(Long id) {
@@ -64,31 +72,41 @@ public class ReminderService {
     }
 
     public ReminderResponseDTO update(Long id, UpdateReminderRequestDTO dto) {
-        var reminder = repository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
+        try {
+            var reminder = repository
+                    .findById(id)
+                    .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
 
-        if (dto.dueDate().isBefore(Instant.now())) {
-            throw new PastDueDateException("DueDate should be a date in the future!");
+            if (dto.dueDate().isBefore(Instant.now())) {
+                throw new PastDueDateException("DueDate should be a date in the future!");
+            }
+
+            BeanUtils.copyProperties(dto, reminder);
+
+            jobService.updateReminderSchedules(reminder);
+
+            return ReminderMapper.toResponse(repository.save(reminder));
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SchedulerException e) {
+            throw new ReminderSchedulerException(e.getMessage());
         }
-
-        reminderSchedulerService.deleteSchedule(reminder);
-
-        BeanUtils.copyProperties(dto, reminder);
-
-        reminderSchedulerService.createSchedule(reminder);
-
-        return ReminderMapper.toResponse(repository.save(reminder));
     }
 
     public void delete(Long id) {
-        var reminder = repository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
+        try {
+            var reminder = repository
+                    .findById(id)
+                    .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
 
-        reminderSchedulerService.deleteSchedule(reminder);
+            jobService.deleteReminderSchedules(reminder.getId());
 
-        repository.deleteById(id);
+            repository.deleteById(id);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (SchedulerException e) {
+            throw new ReminderSchedulerException(e.getMessage());
+        }
     }
 
     public void registerReminderExecution(Reminder reminder) {

@@ -2,6 +2,7 @@ package br.com.springnoobs.reminderapi.reminder.controller;
 
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
+import br.com.springnoobs.reminderapi.reminder.exception.ReminderSchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -26,5 +27,11 @@ public class ReminderExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handlePastDueDateException(ServletWebRequest request, PastDueDateException ex) {
         logger.warn("Past due date {}", request.getRequest().getRequestURI(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ReminderSchedulerException.class)
+    public ProblemDetail handleReminderSchedulerException(ServletWebRequest request, ReminderSchedulerException ex) {
+        logger.warn("Scheduler Exception {}", request.getRequest().getRequestURI(), ex);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }

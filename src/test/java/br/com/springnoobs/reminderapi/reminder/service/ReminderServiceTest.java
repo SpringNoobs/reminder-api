@@ -12,7 +12,7 @@ import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
-import br.com.springnoobs.reminderapi.reminder.scheduler.ReminderSchedulerService;
+import br.com.springnoobs.reminderapi.schedule.service.JobService;
 import br.com.springnoobs.reminderapi.user.dto.request.ContactRequestDTO;
 import br.com.springnoobs.reminderapi.user.dto.request.CreateUserRequestDTO;
 import br.com.springnoobs.reminderapi.user.entity.Contact;
@@ -36,7 +36,7 @@ class ReminderServiceTest {
     private ReminderRepository repository;
 
     @Mock
-    private ReminderSchedulerService reminderSchedulerService;
+    private JobService jobService;
 
     @Mock
     private UserService userService;
