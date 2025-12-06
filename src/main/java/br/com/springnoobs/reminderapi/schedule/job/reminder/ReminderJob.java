@@ -1,4 +1,4 @@
-package br.com.springnoobs.reminderapi.schedule.job;
+package br.com.springnoobs.reminderapi.schedule.job.reminder;
 
 import br.com.springnoobs.reminderapi.mail.service.EmailService;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;

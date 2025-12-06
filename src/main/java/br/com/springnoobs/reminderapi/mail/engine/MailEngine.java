@@ -1,5 +1,6 @@
 package br.com.springnoobs.reminderapi.mail.engine;
 
+import br.com.springnoobs.reminderapi.mail.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class MailEngine {
         this.mailSender = mailSender;
     }
 
-    public void sendEmail(Map<String, String> variables) {
+    public MimeMessage createEmailMessage(Map<String, String> variables) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
 
@@ -36,9 +37,19 @@ public class MailEngine {
 
             helper.setText(mailTemplate, true);
 
-            mailSender.send(message);
+            return message;
         } catch (IOException | MessagingException e) {
-            logger.error("Error at send email: {}", e.getMessage());
+            logger.error("Error at create email: {}", e.getMessage());
+        }
+
+        return null;
+    }
+
+    public void sendEmail(MimeMessage message) throws EmailSendException {
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new EmailSendException(e.getMessage());
         }
     }
 
