@@ -29,6 +29,8 @@ jobs:
 
   format:
     name: Format
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
