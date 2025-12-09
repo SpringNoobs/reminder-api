@@ -10,8 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class ReminderApiApplication {
 
-    static void main(String[] args) 
-    {
+    static void main(String[] args) {
         SpringApplication.run(ReminderApiApplication.class, args);
     }
 }
