@@ -52,8 +52,12 @@ jobs:
         run: |
           git config user.name github-actions-format
           git add .
-          git diff --quiet --exit-code || git commit -m "Apply spotless formatting" || echo "No changes needed"
-          git push
+          if !  git diff --staged --quiet; then
+            git commit -m "Apply spotless formatting"
+            git push
+          else
+            echo "No changes needed"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
