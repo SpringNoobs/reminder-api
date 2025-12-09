@@ -2,8 +2,7 @@ package br.com.springnoobs.reminderapi.reminder.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import br.com.springnoobs.reminderapi.reminder.dto.request.CreateReminderRequestDTO;
 import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequestDTO;
@@ -11,6 +10,7 @@ import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
+import br.com.springnoobs.reminderapi.reminder.exception.ReminderSchedulerException;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
 import br.com.springnoobs.reminderapi.schedule.service.JobService;
 import br.com.springnoobs.reminderapi.user.dto.request.ContactRequestDTO;
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.quartz.SchedulerException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -106,7 +107,7 @@ class ReminderServiceTest {
     }
 
     @Test
-    void shouldCreateReminderWhenRequestIsValid() {
+    void shouldCreateReminderWhenRequestIsValid() throws SchedulerException {
         CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO(
                 "First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
 
@@ -133,6 +134,7 @@ class ReminderServiceTest {
 
         when(repository.save(any())).thenReturn(reminder);
         when(userService.createAndSaveUser(createUserRequestDTO)).thenReturn(user);
+        doNothing().when(jobService).scheduleJob(any(Reminder.class));
 
         // Act
         ReminderResponseDTO response = service.create(request);
@@ -158,7 +160,50 @@ class ReminderServiceTest {
     }
 
     @Test
-    void shouldUpdateReminderWhenRequestIsValid() {
+    void shouldThrowNotFoundExceptionWhenCreateReminderWithNonExistentUser() {
+        // Arrange
+        CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO(
+                "First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
+
+        Instant dueDate = Instant.now().plusSeconds(60);
+        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate, createUserRequestDTO);
+
+        when(userService.createAndSaveUser(any(CreateUserRequestDTO.class)))
+                .thenThrow(new NotFoundException("User not found"));
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> service.create(request));
+    }
+
+    @Test
+    void shouldThrowReminderSchedulerExceptionWhenCreateReminderFailsToSchedule() throws SchedulerException {
+        // Arrange
+        CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO(
+                "First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
+
+        Instant dueDate = Instant.now().plusSeconds(60);
+        CreateReminderRequestDTO request = new CreateReminderRequestDTO("Create", dueDate, createUserRequestDTO);
+
+        User user = new User();
+        user.setFirstName("First Name");
+
+        Reminder reminder = new Reminder();
+        reminder.setTitle("Create");
+        reminder.setDueDate(dueDate);
+        reminder.setUser(user);
+
+        when(userService.createAndSaveUser(any(CreateUserRequestDTO.class))).thenReturn(user);
+        when(repository.save(any(Reminder.class))).thenReturn(reminder);
+        doThrow(new SchedulerException("Failed to schedule job"))
+                .when(jobService)
+                .scheduleJob(any(Reminder.class));
+
+        // Act & Assert
+        assertThrows(ReminderSchedulerException.class, () -> service.create(request));
+    }
+
+    @Test
+    void shouldUpdateReminderWhenRequestIsValid() throws SchedulerException {
         // Arrange
         Instant dueDate = Instant.now().plusSeconds(60);
         UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", dueDate);
@@ -168,6 +213,7 @@ class ReminderServiceTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(reminder));
         when(repository.save(any())).thenReturn(reminder);
+        doNothing().when(jobService).updateReminderSchedules(any(Reminder.class));
 
         // Act
         ReminderResponseDTO response = service.update(1L, request);
@@ -209,12 +255,32 @@ class ReminderServiceTest {
     }
 
     @Test
-    void shouldDeleteReminderWhenReminderIdIsValid() {
+    void shouldThrowReminderSchedulerExceptionWhenUpdateReminderFailsToSchedule() throws SchedulerException {
+        // Arrange
+        Instant dueDate = Instant.now().plusSeconds(60);
+        UpdateReminderRequestDTO request = new UpdateReminderRequestDTO("Update", dueDate);
+
+        Reminder reminder = new Reminder();
+        reminder.setTitle("Old Title");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(reminder));
+        doThrow(new SchedulerException("Failed to update job"))
+                .when(jobService)
+                .updateReminderSchedules(any(Reminder.class));
+
+        // Act & Assert
+        assertThrows(ReminderSchedulerException.class, () -> service.update(1L, request));
+    }
+
+    @Test
+    void shouldDeleteReminderWhenReminderIdIsValid() throws SchedulerException {
         // Arrange
         Reminder reminder = new Reminder();
+        reminder.setId(1L);
         reminder.setTitle("Delete");
 
         when(repository.findById(1L)).thenReturn(Optional.of(reminder));
+        doNothing().when(jobService).deleteReminderSchedules(1L);
 
         // Act
         service.delete(1L);
@@ -230,6 +296,20 @@ class ReminderServiceTest {
 
         // Act And Assert
         assertThrows(NotFoundException.class, () -> service.delete(1L));
+    }
+
+    @Test
+    void shouldThrowReminderSchedulerExceptionWhenDeleteReminderFailsToSchedule() throws SchedulerException {
+        // Arrange
+        Reminder reminder = new Reminder();
+        reminder.setId(1L);
+        reminder.setTitle("Delete");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(reminder));
+        doThrow(new SchedulerException("Failed to delete job")).when(jobService).deleteReminderSchedules(1L);
+
+        // Act & Assert
+        assertThrows(ReminderSchedulerException.class, () -> service.delete(1L));
     }
 
     @Test
