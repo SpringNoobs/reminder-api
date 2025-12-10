@@ -12,6 +12,8 @@ import br.com.springnoobs.reminderapi.schedule.service.JobService;
 import br.com.springnoobs.reminderapi.user.entity.User;
 import br.com.springnoobs.reminderapi.user.service.UserService;
 import java.time.Instant;
+import java.util.Optional;
+
 import org.quartz.SchedulerException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -106,4 +108,28 @@ public class ReminderService {
 
         repository.save(reminder);
     }
+
+    public ReminderResponseDTO disableEmail(Long id){
+
+        var reminder = repository.
+                findById(id)
+                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found")
+        );
+
+        reminder.setEmailEnabled(false);
+
+        return ReminderMapper.toResponse(repository.save(reminder));
+    }
+
+    public ReminderResponseDTO enableEmail(Long id){
+
+        var reminder = repository.
+                findById(id)
+                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found")
+        );
+
+        reminder.setEmailEnabled(true);
+        return ReminderMapper.toResponse(repository.save(reminder));
+    }
+
 }

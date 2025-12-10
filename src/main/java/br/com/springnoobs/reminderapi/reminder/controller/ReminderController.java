@@ -3,6 +3,7 @@ package br.com.springnoobs.reminderapi.reminder.controller;
 import br.com.springnoobs.reminderapi.reminder.dto.request.CreateReminderRequestDTO;
 import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequestDTO;
 import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
+import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.service.ReminderService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/reminders")
@@ -50,5 +53,15 @@ public class ReminderController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reminderService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/disable-email")
+    public ResponseEntity<ReminderResponseDTO> disableEmail (@PathVariable("id") Long id){
+        return ResponseEntity.ok(reminderService.disableEmail(id));
+    }
+
+    @PatchMapping("/{id}/enable-email")
+    public ResponseEntity<ReminderResponseDTO> enableEmail (@PathVariable("id") Long id){
+        return ResponseEntity.ok(reminderService.enableEmail(id));
     }
 }
