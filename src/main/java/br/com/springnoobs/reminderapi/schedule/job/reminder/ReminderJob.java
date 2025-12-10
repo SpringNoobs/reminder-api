@@ -32,9 +32,7 @@ public class ReminderJob extends QuartzJobBean {
         long reminderId = context.getMergedJobDataMap().getLong("reminder-id");
 
         reminderRepository.findByIdWithAssociations(reminderId).ifPresent(reminder -> {
-            if(Boolean.TRUE.equals(reminder.getEmailEnabled())) {
-                emailService.send(reminder);
-            }
+            emailService.send(reminder);
 
             reminderService.registerReminderExecution(reminder);
 
