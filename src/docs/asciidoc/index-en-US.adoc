@@ -82,6 +82,12 @@ A `POST` request will create a new reminder.
 
 operation::create-reminder[snippets='http-request,curl-request,http-response,request-body']
 
+==== Create a reminder (Internal failure)
+
+A `POST` request to create a reminder may result in an internal failure.
+
+operation::create-reminder-scheduler-error[snippets='http-response']
+
 ==== Create a reminder (past date)
 
 operation::create-reminder-past-date[snippets='http-response']

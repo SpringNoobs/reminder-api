@@ -13,6 +13,7 @@ import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequest
 import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
 import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
+import br.com.springnoobs.reminderapi.reminder.exception.ReminderSchedulerException;
 import br.com.springnoobs.reminderapi.reminder.service.ReminderService;
 import br.com.springnoobs.reminderapi.user.dto.request.ContactRequestDTO;
 import br.com.springnoobs.reminderapi.user.dto.request.CreateUserRequestDTO;
@@ -126,6 +127,24 @@ class ReminderControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andDo(document("create-reminder-past-date"));
+    }
+
+    @Test
+    void shouldReturnInternalServerErrorWhenSchedulerFailsOnCreate() throws Exception {
+        CreateUserRequestDTO createUserRequestDTO = new CreateUserRequestDTO(
+                "First Name", "Last Name", new ContactRequestDTO("email@test.com", "123456789"));
+
+        var request = new CreateReminderRequestDTO("New Reminder", Instant.now().plusSeconds(60), createUserRequestDTO);
+
+        when(service.create(request)).thenThrow(new ReminderSchedulerException("Scheduler error on create"));
+
+        mockMvc.perform(post("/reminders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.title").value("Internal Server Error"))
+                .andExpect(jsonPath("$.detail").value("Scheduler error on create"))
+                .andDo(document("create-reminder-scheduler-error"));
     }
 
     @Test
