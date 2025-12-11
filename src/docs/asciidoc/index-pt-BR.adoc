@@ -82,6 +82,12 @@ Uma requisição `POST` criará um novo lembrete.
 
 operation::create-reminder[snippets='http-request,curl-request,http-response,request-body']
 
+==== Criar um lembrete (Falha interna)
+
+Uma requisição `POST` para criar um lembrete pode resultar em falha interna.
+
+operation::create-reminder-scheduler-error[snippets='http-response']
+
 ==== Criar um lembrete (data no passado)
 
 operation::create-reminder-past-date[snippets='http-response']
