@@ -112,6 +112,12 @@ operation::update-reminder-not-found[snippets='http-response']
 
 operation::update-reminder-past-date[snippets='http-response']
 
+==== Desabilitar um lembrete
+
+Uma requisição `PATCH` para desabilitar um lembrete.
+
+operation::disable-reminder-error[snippets='http-response']
+
 [[resources_reminders_delete]]
 ==== Deletar um lembrete
 
