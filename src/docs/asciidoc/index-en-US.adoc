@@ -118,6 +118,12 @@ operation::update-reminder-not-found[snippets='http-response']
 
 operation::update-reminder-past-date[snippets='http-response']
 
+==== Disable a reminder (Internal failure)
+
+A `PATCH` request to disable a reminder.
+
+operation::disable-reminder-error[snippets='http-response']
+
 [[resources_reminders_delete]]
 ==== Delete a reminder
 
