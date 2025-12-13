@@ -117,40 +117,4 @@ public class ReminderService {
 
         repository.save(reminder);
     }
-
-    @Transactional
-    public ReminderResponseDTO disableEmail(Long id){
-
-        try {
-
-            var reminder = repository.
-                    findById(id)
-                    .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found")
-            );
-
-            jobService.unscheduleJobTriggers(id);
-            return ReminderMapper.toResponse(reminder);
-
-        } catch (SchedulerException e){
-            throw new ReminderSchedulerException(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public ReminderResponseDTO enableEmail(Long id){
-
-        try {
-            var reminder = repository.
-                    findById(id)
-                    .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found")
-            );
-
-            jobService.scheduleJob(reminder);
-            return ReminderMapper.toResponse(reminder);
-
-        } catch (SchedulerException e){
-            throw new ReminderSchedulerException(e.getMessage());
-        }
-    }
-
 }
