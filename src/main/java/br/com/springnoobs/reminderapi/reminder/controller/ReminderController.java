@@ -23,8 +23,7 @@ public class ReminderController {
 
     @GetMapping
     public ResponseEntity<Page<ReminderResponseDTO>> findAll(
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size)
-    {
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<ReminderResponseDTO> reminderPage = reminderService.findAll(pageable);
@@ -32,21 +31,18 @@ public class ReminderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReminderResponseDTO> findById(@PathVariable Long id)
-    {
+    public ResponseEntity<ReminderResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(reminderService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ReminderResponseDTO> create(@RequestBody @Valid CreateReminderRequestDTO dto)
-    {
+    public ResponseEntity<ReminderResponseDTO> create(@RequestBody @Valid CreateReminderRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(reminderService.create(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ReminderResponseDTO> update(
-            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto)
-    {
+            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto) {
         return ResponseEntity.ok(reminderService.update(id, dto));
     }
 
