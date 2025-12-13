@@ -24,10 +24,8 @@ public class MailEngine {
     }
 
     public MimeMessage createEmailMessage(Map<String, String> variables) {
-        try
-        {
+        try {
             MimeMessage message = mailSender.createMimeMessage();
-
 
             // TODO: Teste de formatação de código
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
