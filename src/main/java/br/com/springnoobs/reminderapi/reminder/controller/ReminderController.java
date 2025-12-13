@@ -42,8 +42,7 @@ public class ReminderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ReminderResponseDTO> update(
-            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto)
-    {
+            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto) {
         return ResponseEntity.ok(reminderService.update(id, dto));
     }
 
