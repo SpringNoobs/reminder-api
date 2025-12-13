@@ -109,47 +109,4 @@ public class JobService {
 
         scheduler.scheduleJob(trigger);
     }
-
-    public Optional<JobKey> findJobById(Long reminderId){
-
-        try {
-            JobKey jobKey = new JobKey(JOB_NAME + "-" + reminderId, JOB_GROUP);
-
-            if (scheduler.checkExists(jobKey)){
-                return Optional.of(jobKey);
-            }
-        }
-        catch (SchedulerException e){
-
-            logger.error("Error finding job key for reminder {}: {}", reminderId, e.getMessage());
-            return Optional.empty();
-        }
-        return Optional.empty();
-
-    }
-
-    public void unscheduleJobTriggers(Long reminderId) throws SchedulerException {
-
-        Optional<JobKey> optionalJobkey = findJobById(reminderId);
-
-        if (optionalJobkey.isEmpty()){
-            logger.warn("Job not found for reminder:  {}", reminderId);
-            return;
-        }
-
-        JobKey jobKey = optionalJobkey.get();
-
-        scheduler.getTriggersOfJob(jobKey).forEach(trigger -> {
-            try {
-                scheduler.unscheduleJob(trigger.getKey());
-                logger.info("Unscheduled trigger:  {} for reminder: {}", trigger.getKey(), reminderId);
-            }
-
-            catch (SchedulerException e){
-                logger.error("Error unscheduling trigger {}: {}", trigger.getKey(), e.getMessage());
-            }
-        });
-
-    }
-
 }

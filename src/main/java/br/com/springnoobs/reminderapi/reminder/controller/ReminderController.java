@@ -54,11 +54,8 @@ public class ReminderController {
 
     @PatchMapping("/{id}/disable-email")
     public ResponseEntity<ReminderResponseDTO> disableEmail (@PathVariable("id") Long id){
-        return ResponseEntity.ok(reminderService.disableEmail(id));
+        // TODO: Implementar lógica para desabilitar envio de e-mail no ReminderService
+        return ResponseEntity.ok(reminderService.findById(id));
     }
 
-    @PatchMapping("/{id}/disable-email")
-    public ResponseEntity<ReminderResponseDTO> enableEmail (@PathVariable("id") Long id){
-        return ResponseEntity.ok(reminderService.enableEmail(id));
-    }
 }
