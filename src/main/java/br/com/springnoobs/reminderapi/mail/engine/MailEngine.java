@@ -29,7 +29,9 @@ public class MailEngine {
         {
             MimeMessage message = mailSender.createMimeMessage();
 
-              MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            // TODO: Teste de formatação de código
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(variables.get("email"));
             helper.setSubject(variables.get("subject"));
 

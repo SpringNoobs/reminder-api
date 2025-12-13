@@ -31,7 +31,8 @@ public class ReminderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReminderResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ReminderResponseDTO> findById(@PathVariable Long id)
+    {
         return ResponseEntity.ok(reminderService.findById(id));
     }
 
@@ -42,7 +43,8 @@ public class ReminderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ReminderResponseDTO> update(
-            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto) {
+            @PathVariable Long id, @RequestBody @Valid UpdateReminderRequestDTO dto)
+    {
         return ResponseEntity.ok(reminderService.update(id, dto));
     }
 
