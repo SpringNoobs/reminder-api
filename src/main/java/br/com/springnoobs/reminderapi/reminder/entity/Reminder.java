@@ -36,9 +36,14 @@ public class Reminder {
 
     public Reminder() {}
 
-    public Reminder(Long id, String title, String description, Instant remindAt,
-                    Instant dueDate, Instant executedAt, boolean sent)
-    {
+    public Reminder(
+            Long id,
+            String title,
+            String description,
+            Instant remindAt,
+            Instant dueDate,
+            Instant executedAt,
+            boolean sent) {
         this.id = id;
         this.title = title;
         this.description = description;

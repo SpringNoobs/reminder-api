@@ -2,7 +2,6 @@ package br.com.springnoobs.reminderapi.user.entity;
 
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

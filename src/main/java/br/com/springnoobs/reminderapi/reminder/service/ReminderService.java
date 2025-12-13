@@ -13,8 +13,6 @@ import br.com.springnoobs.reminderapi.schedule.service.JobService;
 import br.com.springnoobs.reminderapi.user.entity.User;
 import br.com.springnoobs.reminderapi.user.service.UserService;
 import java.time.Instant;
-import java.util.Optional;
-
 import org.quartz.SchedulerException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
