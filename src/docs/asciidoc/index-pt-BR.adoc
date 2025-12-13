@@ -82,6 +82,12 @@ Uma requisição `POST` criará um novo lembrete.
 
 operation::create-reminder[snippets='http-request,curl-request,http-response,request-body']
 
+==== Criar um lembrete (Falha interna)
+
+Uma requisição `POST` para criar um lembrete pode resultar em falha interna.
+
+operation::create-reminder-scheduler-error[snippets='http-response']
+
 ==== Criar um lembrete (data no passado)
 
 operation::create-reminder-past-date[snippets='http-response']
@@ -111,12 +117,6 @@ operation::update-reminder-not-found[snippets='http-response']
 ==== Atualizar um lembrete (data no passado)
 
 operation::update-reminder-past-date[snippets='http-response']
-
-==== Desabilitar um lembrete
-
-Uma requisição `PATCH` para desabilitar um lembrete.
-
-operation::disable-reminder-error[snippets='http-response']
 
 [[resources_reminders_delete]]
 ==== Deletar um lembrete

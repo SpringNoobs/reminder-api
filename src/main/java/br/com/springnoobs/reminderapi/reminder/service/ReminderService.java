@@ -5,7 +5,6 @@ import br.com.springnoobs.reminderapi.reminder.dto.request.UpdateReminderRequest
 import br.com.springnoobs.reminderapi.reminder.dto.response.ReminderResponseDTO;
 import br.com.springnoobs.reminderapi.reminder.entity.Reminder;
 import br.com.springnoobs.reminderapi.reminder.exception.NotFoundException;
-import br.com.springnoobs.reminderapi.reminder.exception.PastDueDateException;
 import br.com.springnoobs.reminderapi.reminder.exception.ReminderSchedulerException;
 import br.com.springnoobs.reminderapi.reminder.mapper.ReminderMapper;
 import br.com.springnoobs.reminderapi.reminder.repository.ReminderRepository;
@@ -36,10 +35,6 @@ public class ReminderService {
     @Transactional
     public ReminderResponseDTO create(CreateReminderRequestDTO dto) {
         try {
-            if (dto.dueDate().isBefore(Instant.now())) {
-                throw new PastDueDateException("DueDate should be a date in the future!");
-            }
-
             Reminder reminder = new Reminder();
             BeanUtils.copyProperties(dto, reminder);
 
@@ -77,10 +72,6 @@ public class ReminderService {
                     .findById(id)
                     .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
 
-            if (dto.dueDate().isBefore(Instant.now())) {
-                throw new PastDueDateException("DueDate should be a date in the future!");
-            }
-
             BeanUtils.copyProperties(dto, reminder);
 
             jobService.updateReminderSchedules(reminder);
@@ -114,13 +105,5 @@ public class ReminderService {
         reminder.setSent(true);
 
         repository.save(reminder);
-    }
-
-    public void disableReminderNotifications(Long id) throws SchedulerException {
-        Reminder reminder = repository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
-
-        jobService.unscheduleJobTriggers(reminder.getId());
     }
 }
