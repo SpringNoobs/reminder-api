@@ -35,8 +35,10 @@ public class ReminderController {
         return ResponseEntity.ok(reminderService.findById(id));
     }
 
-    @PostMapping()
-    public ResponseEntity<ReminderResponseDTO> create(@RequestBody @Valid CreateReminderRequestDTO dto) {
+    @PostMapping
+    public ResponseEntity<ReminderResponseDTO> create(@RequestBody @Valid CreateReminderRequestDTO dto)
+
+    {
         return ResponseEntity.status(HttpStatus.CREATED).body(reminderService.create(dto));
     }
 
