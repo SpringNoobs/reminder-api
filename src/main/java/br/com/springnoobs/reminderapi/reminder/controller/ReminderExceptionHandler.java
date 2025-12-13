@@ -35,10 +35,6 @@ public class ReminderExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-    /*
-     * Handles validation errors from annotations like @NotNull, @NotBlank, @Future, etc. Adding the error messages to the response body.
-     * Overridden because the default implementation does not include error messages in the response body.
-     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
