@@ -24,7 +24,8 @@ public class MailEngine {
     }
 
     public MimeMessage createEmailMessage(Map<String, String> variables) {
-        try {
+        try
+        {
             MimeMessage message = mailSender.createMimeMessage();
 
 
