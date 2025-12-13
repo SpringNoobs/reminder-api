@@ -24,10 +24,12 @@ public class MailEngine {
     }
 
     public MimeMessage createEmailMessage(Map<String, String> variables) {
-        try {
+        try
+
+        {
             MimeMessage message = mailSender.createMimeMessage();
 
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+              MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(variables.get("email"));
             helper.setSubject(variables.get("subject"));
 
