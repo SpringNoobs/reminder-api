@@ -50,12 +50,11 @@ public class EmailService {
         sendEmailWithFailureHandling(reminder, mimeMessage, variables);
     }
 
-    private void dispatchEmail(MimeMessage mimeMessage) throws EmailSendException {
+    void dispatchEmail(MimeMessage mimeMessage) throws EmailSendException {
         mailEngine.sendEmail(mimeMessage);
     }
 
-    private void sendEmailWithFailureHandling(
-            Reminder reminder, MimeMessage mimeMessage, Map<String, String> variables) {
+    void sendEmailWithFailureHandling(Reminder reminder, MimeMessage mimeMessage, Map<String, String> variables) {
         try {
             dispatchEmail(mimeMessage);
         } catch (EmailSendException e) {
@@ -65,7 +64,7 @@ public class EmailService {
         }
     }
 
-    private void registerEmailFailure(Map<String, String> variables, String errorMessage) {
+    void registerEmailFailure(Map<String, String> variables, String errorMessage) {
         EmailSendFailure emailSendFailure = new EmailSendFailure();
 
         emailSendFailure.setName(variables.get("name"));
