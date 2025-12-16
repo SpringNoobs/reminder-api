@@ -108,4 +108,12 @@ public class ReminderService {
 
         repository.save(reminder);
     }
+
+    public void disableReminderNotifications(Long id) throws SchedulerException {
+        Reminder reminder = repository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Reminder with ID: " + id + " not found"));
+
+        jobService.unscheduleReminderJobTriggers(reminder.getId());
+    }
 }
