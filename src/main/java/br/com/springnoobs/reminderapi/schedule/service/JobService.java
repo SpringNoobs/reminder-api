@@ -7,19 +7,23 @@ import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JobService {
 
-    private static final String TRIGGER_NAME = "reminder-trigger";
-    private static final String JOB_NAME = "reminder-job";
-    private static final String JOB_GROUP = "reminders";
+    private static final String REMINDER_TRIGGER_NAME = "reminder-trigger";
+    private static final String REMINDER_JOB_NAME = "reminder-job";
+    private static final String REMINDER_JOB_GROUP = "reminders";
 
     private static final String RETRY_EMAIL_JOB_NAME = "retry-email-job";
     private static final String RETRY_EMAIL_TRIGGER_NAME = "retry-email-trigger";
     private static final String RETRY_EMAIL_GROUP = "email-retry";
+    private static final Logger logger = LoggerFactory.getLogger(JobService.class);
 
     private final Scheduler scheduler;
 
@@ -35,7 +39,7 @@ public class JobService {
     public void scheduleJob(Reminder reminder) throws SchedulerException {
 
         JobDetail jobDetail = JobBuilder.newJob(ReminderJob.class)
-                .withIdentity(JOB_NAME + "-" + reminder.getId(), JOB_GROUP)
+                .withIdentity(REMINDER_JOB_NAME + "-" + reminder.getId(), REMINDER_JOB_GROUP)
                 .usingJobData("reminder-id", reminder.getId())
                 .storeDurably()
                 .build();
@@ -52,7 +56,7 @@ public class JobService {
     }
 
     public void deleteReminderSchedules(Long reminderId) throws SchedulerException {
-        JobKey jobKey = new JobKey(JOB_NAME + "-" + reminderId, JOB_GROUP);
+        JobKey jobKey = new JobKey(REMINDER_JOB_NAME + "-" + reminderId, REMINDER_JOB_GROUP);
 
         if (scheduler.checkExists(jobKey)) {
             scheduler.deleteJob(jobKey);
@@ -72,8 +76,8 @@ public class JobService {
         }
 
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity(TRIGGER_NAME + "-" + reminder.getId() + "-" + suffix, JOB_GROUP)
-                .forJob(JOB_NAME + "-" + reminder.getId(), JOB_GROUP)
+                .withIdentity(REMINDER_TRIGGER_NAME + "-" + reminder.getId() + "-" + suffix, REMINDER_JOB_GROUP)
+                .forJob(REMINDER_JOB_NAME + "-" + reminder.getId(), REMINDER_JOB_GROUP)
                 .startAt(Date.from(fireTime))
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
                 .build();
@@ -101,5 +105,34 @@ public class JobService {
                 .build();
 
         scheduler.scheduleJob(trigger);
+    }
+
+    private Optional<JobKey> findReminderJobKey(Long reminderId) {
+        try {
+            JobKey jobKey = new JobKey(REMINDER_JOB_NAME + "-" + reminderId, REMINDER_JOB_GROUP);
+
+            if (scheduler.checkExists(jobKey)) {
+                return Optional.of(jobKey);
+            }
+        } catch (SchedulerException e) {
+            return Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    public void unscheduleReminderJobTriggers(Long reminderId) throws SchedulerException {
+        Optional<JobKey> optionalJobKey = findReminderJobKey(reminderId);
+
+        if (optionalJobKey.isEmpty()) {
+            return;
+        }
+        JobKey jobKey = optionalJobKey.get();
+        scheduler.getTriggersOfJob(jobKey).forEach(trigger -> {
+            try {
+                scheduler.unscheduleJob(trigger.getKey());
+            } catch (SchedulerException e) {
+                logger.error("Error unscheduling job: {}", e.getMessage());
+            }
+        });
     }
 }
