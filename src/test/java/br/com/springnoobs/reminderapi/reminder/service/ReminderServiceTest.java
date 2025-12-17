@@ -296,4 +296,37 @@ class ReminderServiceTest {
         assertNotNull(reminder.getExecutedAt());
         verify(repository).save(reminder);
     }
+
+    @Test
+    void shouldDisableReminderNotificationsWhenReminderIdIsValid() throws SchedulerException {
+        // Arrange
+        long reminderId = 1L;
+        Reminder reminder = new Reminder();
+        reminder.setId(reminderId);
+
+        when(repository.findById(reminderId)).thenReturn(Optional.of(reminder));
+        doNothing().when(jobService).unscheduleReminderJobTriggers(reminderId);
+
+        // Act
+        service.disableReminderNotifications(reminderId);
+
+        // Assert
+        verify(repository).findById(reminderId);
+        verify(jobService).unscheduleReminderJobTriggers(reminderId);
+        verifyNoMoreInteractions(repository, jobService);
+    }
+
+    @Test
+    void shouldThrowNotFoundExceptionWhenDisablingNotificationsForInvalidReminderId() {
+        // Arrange
+        long invalidReminderId = 99L;
+        when(repository.findById(invalidReminderId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> service.disableReminderNotifications(invalidReminderId));
+
+        // Verify
+        verify(repository).findById(invalidReminderId);
+        verifyNoInteractions(jobService);
+    }
 }
