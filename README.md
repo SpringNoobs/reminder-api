@@ -1,6 +1,7 @@
 # Reminder API
 
-Reliably notify users about upcoming deadlines via email, with built-in retries and failure handling—so you don't have to worry about missed notifications.
+Reliably notify users about upcoming deadlines via email, with built-in retries and failure handling.
+So you don't have to worry about missed notifications.
 
 ## Features
 
