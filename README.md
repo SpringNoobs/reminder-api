@@ -116,6 +116,6 @@ The application follows a layered architecture with a Controller-Service-Reposit
 
 ---
 
-**Built with ❤️ by [SpringNoobs](https://github.com/SpringNoobs)**
+**Built by [SpringNoobs](https://github.com/SpringNoobs)**
 
 *For questions or support, please open an issue on GitHub.*
