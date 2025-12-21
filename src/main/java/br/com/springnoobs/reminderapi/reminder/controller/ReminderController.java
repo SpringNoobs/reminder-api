@@ -57,6 +57,5 @@ public class ReminderController {
     public ResponseEntity<Void> disableEmail(@PathVariable Long id) throws SchedulerException {
         reminderService.disableReminderNotifications(id);
         return ResponseEntity.noContent().build();
-
     }
 }
