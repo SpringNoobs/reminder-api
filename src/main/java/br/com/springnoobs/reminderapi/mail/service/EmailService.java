@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +28,9 @@ public class EmailService {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.of("America/Sao_Paulo"));
 
+    @Value("${api.base-url}")
+    private String baseUrl;
+
     public EmailService(MailEngine mailEngine, EmailSendFailureRepository emailSendFailureRepository) {
         this.mailEngine = mailEngine;
         this.emailSendFailureRepository = emailSendFailureRepository;
@@ -39,7 +43,9 @@ public class EmailService {
 
         Contact contact = reminder.getUser().getContact();
 
-        Map<String, String> variables = buildEmailVariables(contact, reminder, "#");
+        String disableUrl = baseUrl + "/reminders/" + reminder.getId() + "/disable-notifications";
+
+        Map<String, String> variables = buildEmailVariables(contact, reminder, disableUrl);
 
         MimeMessage mimeMessage = mailEngine.createEmailMessage(variables);
 
